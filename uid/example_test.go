@@ -28,7 +28,11 @@ func ExampleUIDBuilder() {
 		{Tag: "linux", IP: "2.2.2.2"},
 		{Tag: "avscanned", IP: "2.2.22", Tout: &tout},
 	}
-	if uidmsg, err := uid.NewUIDBuilder().Login(login).Group(group).Register(tag).UIDMessage(nil); err == nil {
+	if uidmsg, err := uid.NewUIDBuilder().
+		Login(login).
+		Group(group).
+		Register(tag).
+		UIDMessage(nil); err == nil {
 		if msg, err := xml.MarshalIndent(uidmsg, "", " "); err == nil {
 			log.Println(string(msg))
 		}
@@ -40,7 +44,9 @@ Create a User-ID payload with a single IP-to-tag entry
 */
 func ExampleUIDBuilder_RegisterIP() {
 	var tout uint = 60
-	if p, err := uid.NewUIDBuilder().RegisterIP("1.1.1.1", "windows", &tout).Payload(nil); err == nil {
+	if p, err := uid.NewUIDBuilder().
+		RegisterIP("1.1.1.1", "windows", &tout).
+		Payload(nil); err == nil {
 		if b, err := xml.Marshal(p); err == nil {
 			fmt.Println(string(b))
 			// Output: <payload><register><entry ip="1.1.1.1"><tag><member timeout="60">windows</member></tag></entry></register></payload>
@@ -53,7 +59,9 @@ Create a User-ID payload with a single user-to-IP entry
 */
 func ExampleUIDBuilder_LoginUser() {
 	var tout uint = 60
-	if p, err := uid.NewUIDBuilder().LoginUser("foo@test.local", "1.1.1.1", &tout).Payload(nil); err == nil {
+	if p, err := uid.NewUIDBuilder().
+		LoginUser("foo@test.local", "1.1.1.1", &tout).
+		Payload(nil); err == nil {
 		if b, err := xml.Marshal(p); err == nil {
 			fmt.Println(string(b))
 			// Output: <payload><login><entry name="foo@test.local" ip="1.1.1.1" timeout="60"></entry></login></payload>
@@ -66,7 +74,9 @@ Create a User-ID payload with a single user-to-group (DUG) entry
 */
 func ExampleUIDBuilder_GroupUser() {
 	var tout uint = 60
-	if p, err := uid.NewUIDBuilder().GroupUser("foo@test.local", "admin", &tout).Payload(nil); err == nil {
+	if p, err := uid.NewUIDBuilder().
+		GroupUser("foo@test.local", "admin", &tout).
+		Payload(nil); err == nil {
 		if b, err := xml.Marshal(p); err == nil {
 			fmt.Println(string(b))
 			// Output: <payload><register-user><entry user="foo@test.local"><tag><member timeout="60">admin</member></tag></entry></register-user></payload>
