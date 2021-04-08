@@ -9,6 +9,9 @@ import (
 	x "github.com/xhoms/panoslib/collection"
 )
 
+// Validate provides PAN-OS XML User-ID API response validation. Error will be raised either
+// by underlying http/net errors of because the PAN-OS User-ID response contains a non "success"
+// status code
 func Validate(resp *http.Response, resperr error) (apiResp *x.APIResponse, err error) {
 	if resperr != nil {
 		err = resperr

@@ -23,18 +23,23 @@ type payload struct {
 	ungroup_group  *string
 }
 
-type mpayload struct {
+// UIDBuilder provides a "functional programming"-like constructor to build a PAN-OS XML User-ID API Payload
+type UIDBuilder struct {
 	entries []payload
 	err     error
 }
 
-func NewPayload() (mp mpayload) {
-	mp = mpayload{}
+// NewUIDBuilder returns an uninitialized UIDBuilder struct. Functional equivalent to UIDBuilder{}
+func NewUIDBuilder() (mp UIDBuilder) {
+	mp = UIDBuilder{}
 	return
 }
 
-func NewFromPayload(p *x.Payload) (mp mpayload) {
-	mp = NewPayload()
+// NewBuilderFromPayload returns an initialized UIDBuilder struct with data contained in the provided message payload.
+// Its common use case is to provide augmentation to an existing message of for "man-in-the-middle" applications.
+// For the latter see additional details in the MemMonitor type
+func NewBuilderFromPayload(p *x.UIDMsgPayload) (mp UIDBuilder) {
+	mp = NewUIDBuilder()
 	if p != nil {
 		if p.Logout != nil {
 			for _, e := range p.Logout.Entry {
@@ -84,12 +89,13 @@ func NewFromPayload(p *x.Payload) (mp mpayload) {
 	return
 }
 
-func (mp mpayload) Register(dag []IPTag) (mpB mpayload) {
+// Register is used to add a list of ip-to-tag entries into the User-ID payload
+func (mp UIDBuilder) Register(dag []IPTag) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
-	mpC := mpayload{entries: make([]payload, len(dag))}
+	mpC := UIDBuilder{entries: make([]payload, len(dag))}
 
 	for idx := range dag {
 		mpC.entries[idx] = payload{
@@ -100,21 +106,23 @@ func (mp mpayload) Register(dag []IPTag) (mpB mpayload) {
 	return
 }
 
-func (mp mpayload) RegisterIP(ip, tag string, tout *uint) (mpB mpayload) {
+// RegisterIP is used to add as single ip-to-tag entry in the User-ID payload
+func (mp UIDBuilder) RegisterIP(ip, tag string, tout *uint) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
 	mpB = mp.Register([]IPTag{{IP: ip, Tag: tag, Tout: tout}})
 	return
 }
 
-func (mp mpayload) Unregister(dag []IPTag) (mpB mpayload) {
+// Unregister is used to add a list of ip-to-tag entries in the "unregister" section into the User-ID payload
+func (mp UIDBuilder) Unregister(dag []IPTag) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
-	mpC := mpayload{entries: make([]payload, len(dag))}
+	mpC := UIDBuilder{entries: make([]payload, len(dag))}
 
 	for idx := range dag {
 		mpC.entries[idx] = payload{
@@ -126,21 +134,23 @@ func (mp mpayload) Unregister(dag []IPTag) (mpB mpayload) {
 	return
 }
 
-func (mp mpayload) UnregisterIP(ip, tag string) (mpB mpayload) {
+// UnregisterIP is used to add as single ip-to-tag entry in the "unregister" section into the User-ID payload
+func (mp UIDBuilder) UnregisterIP(ip, tag string) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
 	mpB = mp.Unregister([]IPTag{{IP: ip, Tag: tag}})
 	return
 }
 
-func (mp mpayload) Login(uid []UserMap) (mpB mpayload) {
+// Login is used to add a list of user-to-ip entries into the User-ID payload
+func (mp UIDBuilder) Login(uid []UserMap) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
-	mpC := mpayload{entries: make([]payload, len(uid))}
+	mpC := UIDBuilder{entries: make([]payload, len(uid))}
 
 	for idx := range uid {
 		mpC.entries[idx] = payload{
@@ -151,21 +161,23 @@ func (mp mpayload) Login(uid []UserMap) (mpB mpayload) {
 	return
 }
 
-func (mp mpayload) LoginUser(user, ip string, tout *uint) (mpB mpayload) {
+// LoginUser is used to add as single user-to-ip entry in the User-ID payload
+func (mp UIDBuilder) LoginUser(user, ip string, tout *uint) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
 	mpB = mp.Login([]UserMap{{IP: ip, User: user, Tout: tout}})
 	return
 }
 
-func (mp mpayload) Logout(uid []UserMap) (mpB mpayload) {
+// Logout is used to add a list of user-to-ip entries in the "logout" section into the User-ID payload
+func (mp UIDBuilder) Logout(uid []UserMap) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
-	mpC := mpayload{entries: make([]payload, len(uid))}
+	mpC := UIDBuilder{entries: make([]payload, len(uid))}
 
 	for idx := range uid {
 		mpC.entries[idx] = payload{
@@ -177,21 +189,23 @@ func (mp mpayload) Logout(uid []UserMap) (mpB mpayload) {
 	return
 }
 
-func (mp mpayload) LogoutUser(user, ip string) (mpB mpayload) {
+// LogoutUser is used to add a single user-to-ip entry in the "logout" section into the User-ID payload
+func (mp UIDBuilder) LogoutUser(user, ip string) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
 	mpB = mp.Logout([]UserMap{{IP: ip, User: user}})
 	return
 }
 
-func (mp mpayload) Group(dug []UserGroup) (mpB mpayload) {
+// Group is used to add a list of user-to-group (DUG) entries into the User-ID payload
+func (mp UIDBuilder) Group(dug []UserGroup) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
-	mpC := mpayload{entries: make([]payload, len(dug))}
+	mpC := UIDBuilder{entries: make([]payload, len(dug))}
 
 	for idx := range dug {
 		mpC.entries[idx] = payload{
@@ -202,21 +216,23 @@ func (mp mpayload) Group(dug []UserGroup) (mpB mpayload) {
 	return
 }
 
-func (mp mpayload) GroupUser(user, group string, tout *uint) (mpB mpayload) {
+// GroupUser is used to add a single user-to-group (DUG) entry into the User-ID payload
+func (mp UIDBuilder) GroupUser(user, group string, tout *uint) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
 	mpB = mp.Group([]UserGroup{{User: user, Group: group, Tout: tout}})
 	return
 }
 
-func (mp mpayload) Ungroup(dug []UserGroup) (mpB mpayload) {
+// Ungroup is used to add a list of user-to-group entries in the "unregister-user" section into the User-ID payload
+func (mp UIDBuilder) Ungroup(dug []UserGroup) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
-	mpC := mpayload{entries: make([]payload, len(dug))}
+	mpC := UIDBuilder{entries: make([]payload, len(dug))}
 
 	for idx := range dug {
 		mpC.entries[idx] = payload{
@@ -228,29 +244,38 @@ func (mp mpayload) Ungroup(dug []UserGroup) (mpB mpayload) {
 	return
 }
 
-func (mp mpayload) UngroupUser(user, group string) (mpB mpayload) {
+// UngroupUser is used to add a single of user-to-group entry in the "unregister-user" section into the User-ID payload
+func (mp UIDBuilder) UngroupUser(user, group string) (mpB UIDBuilder) {
 	if mp.err != nil {
-		mpB = mpayload{err: mp.err}
+		mpB = UIDBuilder{err: mp.err}
 		return
 	}
 	mpB = mp.Ungroup([]UserGroup{{User: user, Group: group}})
 	return
 }
 
-func (mp mpayload) Add(mpB mpayload) (mpC mpayload) {
+// Add merges data from mpB builder into this builder
+func (mp UIDBuilder) Add(mpB UIDBuilder) (mpC UIDBuilder) {
 	if mp.err != nil {
-		mpC = mpayload{
+		mpC = UIDBuilder{
 			err: mp.err,
 		}
 		return
 	}
-	mpC = mpayload{
+	mpC = UIDBuilder{
 		entries: append(mp.entries, mpB.entries...),
 	}
 	return
 }
 
-func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
+/*
+Payload merges all accumulated data into a PAN-OS XML User-ID API payload
+
+If a variable implementing the Monitor interface is provided then a log entry
+will be issued to it for every entry in the payload. Order of log entries will
+be unregister > unregister-user > logout > login > register-user > register
+*/
+func (mp UIDBuilder) Payload(m Monitor) (p *x.UIDMsgPayload, err error) {
 	if mp.err != nil {
 		return nil, mp.err
 	}
@@ -305,22 +330,22 @@ func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
 			}
 		}
 	}
-	p = &x.Payload{}
+	p = &x.UIDMsgPayload{}
 	if len(unreg) > 0 {
-		p.Unregister = &x.DAGRegUnreg{
-			Entry: make([]x.DAGEntry, len(unreg)),
+		p.Unregister = &x.UIDMsgPldDAGRegUnreg{
+			Entry: make([]x.UIDMsgPldDAGEntry, len(unreg)),
 		}
 		entryidx := 0
 		for ip, tagmap := range unreg {
-			dagentry := x.DAGEntry{
+			dagentry := x.UIDMsgPldDAGEntry{
 				IP: ip,
-				Tag: x.Tag{
-					Member: make([]x.Member, len(tagmap)),
+				Tag: x.UIDMsgPldDxGEntryTag{
+					Member: make([]x.UIDMsgPldDxGEnrtryTagMember, len(tagmap)),
 				},
 			}
 			tagidx := 0
 			for tag := range tagmap {
-				member := x.Member{
+				member := x.UIDMsgPldDxGEnrtryTagMember{
 					Member: tag,
 				}
 				dagentry.Tag.Member[tagidx] = member
@@ -332,20 +357,20 @@ func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
 		}
 	}
 	if len(ungroup) > 0 {
-		p.UnregisterUser = &x.DUGRegUnreg{
-			Entry: make([]x.DUGEntry, len(ungroup)),
+		p.UnregisterUser = &x.UIDMsgPldDUGRegUnreg{
+			Entry: make([]x.UIDMsgPldDUGEntry, len(ungroup)),
 		}
 		entryidx := 0
 		for user, groupmap := range ungroup {
-			dugentry := x.DUGEntry{
+			dugentry := x.UIDMsgPldDUGEntry{
 				User: user,
-				Tag: x.Tag{
-					Member: make([]x.Member, len(groupmap)),
+				Tag: x.UIDMsgPldDxGEntryTag{
+					Member: make([]x.UIDMsgPldDxGEnrtryTagMember, len(groupmap)),
 				},
 			}
 			tagidx := 0
 			for tag := range groupmap {
-				member := x.Member{
+				member := x.UIDMsgPldDxGEnrtryTagMember{
 					Member: tag,
 				}
 				dugentry.Tag.Member[tagidx] = member
@@ -357,12 +382,12 @@ func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
 		}
 	}
 	if len(logout) > 0 {
-		p.Logout = &x.LogInOut{
-			Entry: make([]x.LogEntry, 0, len(logout)*2),
+		p.Logout = &x.UIDMsgPldLogInOut{
+			Entry: make([]x.UIDMsgPldLogEntry, 0, len(logout)*2),
 		}
 		for user, ipmap := range logout {
 			for ip := range ipmap {
-				logoutentry := x.LogEntry{
+				logoutentry := x.UIDMsgPldLogEntry{
 					Name: user,
 					IP:   ip,
 				}
@@ -372,12 +397,12 @@ func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
 		}
 	}
 	if len(login) > 0 {
-		p.Login = &x.LogInOut{
-			Entry: make([]x.LogEntry, 0, len(login)*2),
+		p.Login = &x.UIDMsgPldLogInOut{
+			Entry: make([]x.UIDMsgPldLogEntry, 0, len(login)*2),
 		}
 		for user, ipmap := range login {
 			for ip, tout := range ipmap {
-				loginentry := x.LogEntry{
+				loginentry := x.UIDMsgPldLogEntry{
 					Name: user,
 					IP:   ip,
 				}
@@ -391,20 +416,20 @@ func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
 		}
 	}
 	if len(group) > 0 {
-		p.RegisterUser = &x.DUGRegUnreg{
-			Entry: make([]x.DUGEntry, len(group)),
+		p.RegisterUser = &x.UIDMsgPldDUGRegUnreg{
+			Entry: make([]x.UIDMsgPldDUGEntry, len(group)),
 		}
 		entryidx := 0
 		for user, grp := range group {
-			dugentry := x.DUGEntry{
+			dugentry := x.UIDMsgPldDUGEntry{
 				User: user,
-				Tag: x.Tag{
-					Member: make([]x.Member, len(grp)),
+				Tag: x.UIDMsgPldDxGEntryTag{
+					Member: make([]x.UIDMsgPldDxGEnrtryTagMember, len(grp)),
 				},
 			}
 			tagidx := 0
 			for tag, tout := range grp {
-				member := x.Member{
+				member := x.UIDMsgPldDxGEnrtryTagMember{
 					Member: tag,
 				}
 				if tout != nil {
@@ -420,20 +445,20 @@ func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
 		}
 	}
 	if len(reg) > 0 {
-		p.Register = &x.DAGRegUnreg{
-			Entry: make([]x.DAGEntry, len(reg)),
+		p.Register = &x.UIDMsgPldDAGRegUnreg{
+			Entry: make([]x.UIDMsgPldDAGEntry, len(reg)),
 		}
 		entryidx := 0
 		for ip, tag := range reg {
-			dagentry := x.DAGEntry{
+			dagentry := x.UIDMsgPldDAGEntry{
 				IP: ip,
-				Tag: x.Tag{
-					Member: make([]x.Member, len(tag)),
+				Tag: x.UIDMsgPldDxGEntryTag{
+					Member: make([]x.UIDMsgPldDxGEnrtryTagMember, len(tag)),
 				},
 			}
 			tagidx := 0
 			for tag, tout := range tag {
-				member := x.Member{
+				member := x.UIDMsgPldDxGEnrtryTagMember{
 					Member: tag,
 				}
 				if tout != nil {
@@ -451,8 +476,15 @@ func (mp mpayload) Payload(m Monitor) (p *x.Payload, err error) {
 	return
 }
 
-func (mp mpayload) UIDMessage(m Monitor) (u *x.UIDMessage, err error) {
-	var p *x.Payload
+/*
+UIDMessage merges all accumulated data into a ready-to use PAN-OS XML User-ID API message
+
+If a variable implementing the Monitor interface is provided then a log entry
+will be issued to it for every entry in the payload. Order of log entries will
+be unregister > unregister-user > logout > login > register-user > register
+*/
+func (mp UIDBuilder) UIDMessage(m Monitor) (u *x.UIDMessage, err error) {
+	var p *x.UIDMsgPayload
 	if p, err = mp.Payload(m); err == nil {
 		u = &x.UIDMessage{
 			Type:    "update",
@@ -463,7 +495,15 @@ func (mp mpayload) UIDMessage(m Monitor) (u *x.UIDMessage, err error) {
 	return
 }
 
-func (mp mpayload) Push(
+/*
+Push merges all accumulated data into a ready-to use PAN-OS XML User-ID API message
+and sends it to the device leveraging a provided http.Client.
+
+If a variable implementing the Monitor interface is provided then a log entry
+will be issued to it for every entry in the payload. Order of log entries will
+be unregister > unregister-user > logout > login > register-user > register
+*/
+func (mp UIDBuilder) Push(
 	hostport, apikey string,
 	c Client,
 	m Monitor) (resp *http.Response, err error) {
@@ -487,7 +527,7 @@ func (mp mpayload) Push(
 	return
 }
 
-func (mp mpayload) log(m Monitor, op operation, subject string, value string, tout *uint) {
+func (mp UIDBuilder) log(m Monitor, op Operation, subject string, value string, tout *uint) {
 	if m != nil {
 		m.Log(op, subject, value, tout)
 	}

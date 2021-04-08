@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"testing"
-	"time"
 
 	x "github.com/xhoms/panoslib/collection"
 	"github.com/xhoms/panoslib/uid"
@@ -15,13 +14,13 @@ import (
 
 func TestSingleRegister(t *testing.T) {
 	dag := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo"}}
-	mp := uid.NewPayload().Register(dag)
+	mp := uid.NewUIDBuilder().Register(dag)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil, p.Register == nil, len(p.Register.Entry) == 0:
@@ -41,13 +40,13 @@ func TestSingleRegister(t *testing.T) {
 }
 
 func TestSingleRegisterAlternate(t *testing.T) {
-	mp := uid.NewPayload().RegisterIP("1.1.1.1", "foo", nil)
+	mp := uid.NewUIDBuilder().RegisterIP("1.1.1.1", "foo", nil)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil, p.Register == nil, len(p.Register.Entry) == 0:
@@ -69,13 +68,13 @@ func TestSingleRegisterAlternate(t *testing.T) {
 func TestSingleRegisterTout(t *testing.T) {
 	var tout uint = 60
 	dag := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo", Tout: &tout}}
-	mp := uid.NewPayload().Register(dag)
+	mp := uid.NewUIDBuilder().Register(dag)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil, p.Register == nil, len(p.Register.Entry) == 0:
@@ -96,13 +95,13 @@ func TestSingleRegisterTout(t *testing.T) {
 
 func TestSingleRegisterToutAlternate(t *testing.T) {
 	var tout uint = 60
-	mp := uid.NewPayload().RegisterIP("1.1.1.1", "foo", &tout)
+	mp := uid.NewUIDBuilder().RegisterIP("1.1.1.1", "foo", &tout)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil, p.Register == nil, len(p.Register.Entry) == 0:
@@ -123,13 +122,13 @@ func TestSingleRegisterToutAlternate(t *testing.T) {
 
 func TestSingleUnregister(t *testing.T) {
 	dag := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo"}}
-	mp := uid.NewPayload().Unregister(dag)
+	mp := uid.NewUIDBuilder().Unregister(dag)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil, p.Unregister == nil, len(p.Unregister.Entry) == 0:
@@ -151,13 +150,13 @@ func TestSingleUnregister(t *testing.T) {
 func TestSingleRegUnreg(t *testing.T) {
 	dagreg := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo"}}
 	dagunreg := []uid.IPTag{{IP: "2.2.2.2", Tag: "bar"}}
-	mp := uid.NewPayload().Register(dagreg).Unregister(dagunreg)
+	mp := uid.NewUIDBuilder().Register(dagreg).Unregister(dagunreg)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil,
@@ -187,13 +186,13 @@ func TestSingleRegUnreg(t *testing.T) {
 func TestMultiRegUnreg(t *testing.T) {
 	dagreg := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo"}, {IP: "1.1.2.2", Tag: "foo"}, {IP: "1.1.2.2", Tag: "bar"}}
 	dagunreg := []uid.IPTag{{IP: "2.2.2.2", Tag: "bar"}, {IP: "2.2.1.1", Tag: "bar"}, {IP: "2.2.1.1", Tag: "foo"}}
-	mp := uid.NewPayload().Register(dagreg).Unregister(dagunreg)
+	mp := uid.NewUIDBuilder().Register(dagreg).Unregister(dagunreg)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil,
@@ -219,13 +218,13 @@ func TestMultiRegUnreg(t *testing.T) {
 func TestSingleLogin(t *testing.T) {
 	var tout uint = 60
 	login := []uid.UserMap{{IP: "1.1.1.1", User: "foo@test.local", Tout: &tout}}
-	mp := uid.NewPayload().Login(login)
+	mp := uid.NewUIDBuilder().Login(login)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil,
@@ -247,13 +246,13 @@ func TestSingleLogin(t *testing.T) {
 
 func TestSingleLoginAlternate(t *testing.T) {
 	var tout uint = 60
-	mp := uid.NewPayload().LoginUser("foo@test.local", "1.1.1.1", &tout)
+	mp := uid.NewUIDBuilder().LoginUser("foo@test.local", "1.1.1.1", &tout)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil,
@@ -275,13 +274,13 @@ func TestSingleLoginAlternate(t *testing.T) {
 
 func TestSingleLogout(t *testing.T) {
 	login := []uid.UserMap{{IP: "1.1.1.1", User: "foo@test.local"}}
-	mp := uid.NewPayload().Logout(login)
+	mp := uid.NewUIDBuilder().Logout(login)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil,
@@ -302,13 +301,13 @@ func TestSingleLogout(t *testing.T) {
 }
 
 func TestSingleLogoutAlternate(t *testing.T) {
-	mp := uid.NewPayload().LogoutUser("foo@test.local", "1.1.1.1")
+	mp := uid.NewUIDBuilder().LogoutUser("foo@test.local", "1.1.1.1")
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil,
@@ -329,7 +328,7 @@ func TestSingleLogoutAlternate(t *testing.T) {
 }
 
 func TestLogMulti(t *testing.T) {
-	mp := uid.NewPayload().
+	mp := uid.NewUIDBuilder().
 		LoginUser("foo@test.local", "1.1.1.1", nil).
 		LoginUser("foo@test.local", "1.1.2.2", nil).
 		LoginUser("bar@test.local", "1.1.3.3", nil).
@@ -337,11 +336,11 @@ func TestLogMulti(t *testing.T) {
 		LogoutUser("foo@test.local", "1.1.5.5").
 		LogoutUser("bar@test.local", "1.1.6.6")
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil,
@@ -364,13 +363,13 @@ func TestLogMulti(t *testing.T) {
 
 func TestSingleGroup(t *testing.T) {
 	dug := []uid.UserGroup{{User: "foo@test.local", Group: "admin"}}
-	mp := uid.NewPayload().Group(dug)
+	mp := uid.NewUIDBuilder().Group(dug)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil, p.RegisterUser == nil, len(p.RegisterUser.Entry) == 0:
@@ -389,13 +388,13 @@ func TestSingleGroup(t *testing.T) {
 }
 
 func TestSingleGroupAlternate(t *testing.T) {
-	mp := uid.NewPayload().GroupUser("foo@test.local", "admin", nil)
+	mp := uid.NewUIDBuilder().GroupUser("foo@test.local", "admin", nil)
 	var err error
-	var p *x.Payload
+	var p *x.UIDMsgPayload
 	var b []byte
 	if p, err = mp.Payload(nil); err == nil {
 		if b, err = xml.Marshal(p); err == nil {
-			p = &x.Payload{}
+			p = &x.UIDMsgPayload{}
 			if err = xml.Unmarshal(b, p); err == nil {
 				switch {
 				case p == nil, p.RegisterUser == nil, len(p.RegisterUser.Entry) == 0:
@@ -415,7 +414,7 @@ func TestSingleGroupAlternate(t *testing.T) {
 
 func TestNil(t *testing.T) {
 	var err error
-	if payload, err := uid.NewPayload().Payload(nil); err == nil {
+	if payload, err := uid.NewUIDBuilder().Payload(nil); err == nil {
 		if _, err = xml.MarshalIndent(payload, "", "  "); err == nil {
 			return
 		}
@@ -426,7 +425,7 @@ func TestNil(t *testing.T) {
 func TestMultiRegUnregUid(t *testing.T) {
 	dagreg := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo"}, {IP: "1.1.2.2", Tag: "foo"}, {IP: "1.1.2.2", Tag: "bar"}}
 	dagunreg := []uid.IPTag{{IP: "2.2.2.2", Tag: "bar"}, {IP: "2.2.1.1", Tag: "bar"}, {IP: "2.2.1.1", Tag: "foo"}}
-	mp := uid.NewPayload().Register(dagreg).Unregister(dagunreg)
+	mp := uid.NewUIDBuilder().Register(dagreg).Unregister(dagunreg)
 	var err error
 	var u *x.UIDMessage
 	var b []byte
@@ -482,7 +481,7 @@ func TestMultiRegUnregPush(t *testing.T) {
 	`
 	dagreg := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo"}, {IP: "1.1.2.2", Tag: "foo"}, {IP: "1.1.2.2", Tag: "bar"}}
 	dagunreg := []uid.IPTag{{IP: "2.2.2.2", Tag: "bar"}, {IP: "2.2.1.1", Tag: "bar"}, {IP: "2.2.1.1", Tag: "foo"}}
-	mp := uid.NewPayload().Register(dagreg).Unregister(dagunreg)
+	mp := uid.NewUIDBuilder().Register(dagreg).Unregister(dagunreg)
 	var err error
 	var resp *http.Response
 	if resp, err = mp.Push("vm.test.local", "apikey", respBody, nil); err == nil {
@@ -524,7 +523,7 @@ func TestMultiRegUnregPushErr(t *testing.T) {
 `
 	dagreg := []uid.IPTag{{IP: "1.1.1.1", Tag: "foo"}, {IP: "1.1.2.2", Tag: "foo"}, {IP: "1.1.2.2", Tag: "bar"}}
 	dagunreg := []uid.IPTag{{IP: "2.2.2.2", Tag: "bar"}, {IP: "2.2.1.1", Tag: "bar"}, {IP: "2.2.1.1", Tag: "foo"}}
-	mp := uid.NewPayload().Register(dagreg).Unregister(dagunreg)
+	mp := uid.NewUIDBuilder().Register(dagreg).Unregister(dagunreg)
 	var err error
 	var resp *http.Response
 	if resp, err = mp.Push("vm.test.local", "apikey", respBody, nil); err == nil {
@@ -572,11 +571,11 @@ func TestFromPayloadRegister(t *testing.T) {
 	</login>
   </payload>
 `
-	payload := &x.Payload{}
+	payload := &x.UIDMsgPayload{}
 	var tout uint = 61
 	var err error
 	if err = xml.Unmarshal([]byte(raw), payload); err == nil {
-		mp := uid.NewFromPayload(payload).
+		mp := uid.NewBuilderFromPayload(payload).
 			LoginUser("b@test.local", "1.1.2.2", &tout).
 			GroupUser("b@test.local", "admin", &tout).
 			RegisterIP("1.1.2.2", "win", &tout)
@@ -616,10 +615,10 @@ func TestFromPayloadRegisterT(t *testing.T) {
 	</logout>
   </payload>
 `
-	payload := &x.Payload{}
+	payload := &x.UIDMsgPayload{}
 	var err error
 	if err = xml.Unmarshal([]byte(raw), payload); err == nil {
-		mp := uid.NewFromPayload(payload).
+		mp := uid.NewBuilderFromPayload(payload).
 			LogoutUser("b@test.local", "1.1.2.2").
 			UngroupUser("b@test.local", "admin").
 			UnregisterIP("1.1.2.2", "win")
@@ -632,57 +631,6 @@ func TestFromPayloadRegisterT(t *testing.T) {
 			} else {
 				err = errors.New("recovery error")
 			}
-		}
-	}
-	t.Error(err)
-}
-
-func TestMonitor(t *testing.T) {
-	now := time.Now()
-	t1 := now.Add(10 * time.Minute)
-	var tout uint = 9
-	var err error
-	c := uid.NewMonitor()
-	if _, err = uid.NewPayload().
-		LoginUser("a1@test.local", "1.1.1.1", nil).
-		LoginUser("a1@test.local", "1.1.2.2", &tout).
-		LoginUser("a2@test.local", "2.2.2.2", &tout).
-		LoginUser("b1@test.local", "3.3.3.3", &tout).
-		GroupUser("a1@test.local", "a", nil).
-		GroupUser("a2@test.local", "a", &tout).
-		GroupUser("b1@test.local", "b", &tout).
-		RegisterIP("1.1.1.1", "good", nil).
-		RegisterIP("2.2.2.2", "good", &tout).
-		RegisterIP("3.3.3.3", "bad", &tout).
-		Payload(c); err == nil {
-		if len(c.UserIP("a1@test.local")) == 2 &&
-			len(c.GroupIP("a")) == 3 &&
-			len(c.TagIP("good")) == 2 {
-			if _, err = uid.NewPayload().
-				LogoutUser("a1@test.local", "1.1.2.2").
-				UngroupUser("a1@test.local", "a").
-				UnregisterIP("1.1.1.1", "good").
-				Payload(c); err == nil {
-				if len(c.UserIP("a1@test.local")) == 1 &&
-					len(c.GroupIP("a")) == 1 &&
-					len(c.TagIP("good")) == 1 &&
-					len(c.UserIP("a2@test.local")) == 1 &&
-					len(c.GroupIP("b")) == 1 &&
-					len(c.TagIP("bad")) == 1 {
-					c.CleanUp(t1)
-					if len(c.UserIP("a2@test.local")) == 0 &&
-						len(c.GroupIP("b")) == 0 &&
-						len(c.TagIP("bad")) == 0 {
-						return
-					} else {
-						err = errors.New("recovery error 3")
-					}
-				} else {
-					err = errors.New("recovery error 2")
-				}
-			}
-		} else {
-			err = errors.New("recovery error 1")
 		}
 	}
 	t.Error(err)
