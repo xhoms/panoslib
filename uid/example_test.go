@@ -49,9 +49,9 @@ func ExampleUIDBuilder_RegisterIP() {
 		Payload(nil); err == nil {
 		if b, err := xml.Marshal(p); err == nil {
 			fmt.Println(string(b))
-			// Output: <payload><register><entry ip="1.1.1.1"><tag><member timeout="60">windows</member></tag></entry></register></payload>
 		}
 	}
+	// Output: <payload><register><entry ip="1.1.1.1"><tag><member timeout="60">windows</member></tag></entry></register></payload>
 }
 
 /*
@@ -64,9 +64,9 @@ func ExampleUIDBuilder_LoginUser() {
 		Payload(nil); err == nil {
 		if b, err := xml.Marshal(p); err == nil {
 			fmt.Println(string(b))
-			// Output: <payload><login><entry name="foo@test.local" ip="1.1.1.1" timeout="60"></entry></login></payload>
 		}
 	}
+	// Output: <payload><login><entry name="foo@test.local" ip="1.1.1.1" timeout="60"></entry></login></payload>
 }
 
 /*
@@ -79,9 +79,9 @@ func ExampleUIDBuilder_GroupUser() {
 		Payload(nil); err == nil {
 		if b, err := xml.Marshal(p); err == nil {
 			fmt.Println(string(b))
-			// Output: <payload><register-user><entry user="foo@test.local"><tag><member timeout="60">admin</member></tag></entry></register-user></payload>
 		}
 	}
+	// Output: <payload><register-user><entry user="foo@test.local"><tag><member timeout="60">admin</member></tag></entry></register-user></payload>
 }
 
 /*

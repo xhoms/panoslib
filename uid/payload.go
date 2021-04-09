@@ -23,7 +23,9 @@ type payload struct {
 	ungroup_group  *string
 }
 
-// UIDBuilder provides a "functional programming"-like constructor to build a PAN-OS XML User-ID API Payload
+// UIDBuilder provides a "functional programming"-like constructor to build a PAN-OS XML User-ID API Payload.
+// Methods for UIDBuilder are not thread safe. All operations between NewUIDBuilder() and the final action
+// (Payload(), UIDMessage() or Push()) must happen inside the same goroutine
 type UIDBuilder struct {
 	entries []payload
 	err     error
@@ -269,7 +271,8 @@ func (mp UIDBuilder) Add(mpB UIDBuilder) (mpC UIDBuilder) {
 }
 
 /*
-Payload merges all accumulated data into a PAN-OS XML User-ID API payload
+Payload is a final action. It merges all accumulated data into a PAN-OS XML
+User-ID API payload
 
 If a variable implementing the Monitor interface is provided then a log entry
 will be issued to it for every entry in the payload. Order of log entries will
@@ -477,7 +480,8 @@ func (mp UIDBuilder) Payload(m Monitor) (p *x.UIDMsgPayload, err error) {
 }
 
 /*
-UIDMessage merges all accumulated data into a ready-to use PAN-OS XML User-ID API message
+UIDMessage is a final action. It merges all accumulated data into a ready-to
+use PAN-OS XML User-ID API message
 
 If a variable implementing the Monitor interface is provided then a log entry
 will be issued to it for every entry in the payload. Order of log entries will
@@ -496,8 +500,9 @@ func (mp UIDBuilder) UIDMessage(m Monitor) (u *x.UIDMessage, err error) {
 }
 
 /*
-Push merges all accumulated data into a ready-to use PAN-OS XML User-ID API message
-and sends it to the device leveraging a provided http.Client.
+Push is a final action. It merges all accumulated data into a ready-to use
+PAN-OS XML User-ID API message and sends it to the device leveraging a
+provided http.Client.
 
 If a variable implementing the Monitor interface is provided then a log entry
 will be issued to it for every entry in the payload. Order of log entries will

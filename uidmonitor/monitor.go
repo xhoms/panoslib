@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"sort"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/xhoms/panoslib/uid"
@@ -68,6 +69,7 @@ type db struct {
 	items []*item
 	index index
 	size  int
+	lock  *sync.Mutex
 }
 
 func newDb() (out *db) {
@@ -79,6 +81,7 @@ func newDb() (out *db) {
 		items: make([]*item, 0, size),
 		index: make(map[string]map[string]*item),
 		size:  size,
+		lock:  &sync.Mutex{},
 	}
 	return
 }
@@ -96,6 +99,8 @@ func (d *db) Swap(i, j int) {
 }
 
 func (d *db) gb(t time.Time) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
 	idx := 0
 	sort.Sort(d)
 	for range d.items {
@@ -117,6 +122,8 @@ func (d *db) gb(t time.Time) {
 }
 
 func (d *db) append(subject, key string, valid int64) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
 	if im := d.index.get(subject, key); im != nil {
 		im.Valid = valid
 	} else {
@@ -127,6 +134,8 @@ func (d *db) append(subject, key string, valid int64) {
 }
 
 func (d *db) remove(subject, key string) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
 	if im := d.index.get(subject, key); im != nil {
 		idx := 0
 		found := false
@@ -144,6 +153,8 @@ func (d *db) remove(subject, key string) {
 }
 
 func (d *db) list(key string) (out []string) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
 	out = d.index.list(key)
 	return
 }
@@ -203,7 +214,7 @@ func (m *MemMonitor) UserIP(user string) []string {
 // GroupIP returns the list of IP's for a given group of users
 func (m *MemMonitor) GroupIP(group string) (out []string) {
 	out = make([]string, 0, m.userMap.size)
-	for u := range m.userGroup.index[group] {
+	for _, u := range m.userGroup.list(group) {
 		out = append(out, m.userMap.list(u)...)
 	}
 	return out

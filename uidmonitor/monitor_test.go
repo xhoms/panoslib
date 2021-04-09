@@ -77,13 +77,17 @@ func ExampleNewMemMonitor() {
 				UnregisterIP("3.3.3.3", "good").
 				Payload(c); err == nil {
 				if len(c.TagIP("good")) == 2 { // one entry lost due to explicit unregister
-					c.CleanUp(t1) // purge at t1 (10 min after) will remove the entry that expires at 9 minutes
+					/*
+						purge at t1 (10 min after) will remove the entry
+						that expires at 9 minutes
+					*/
+					c.CleanUp(t1)
 					fmt.Println(len(c.TagIP("good")))
-					// Output: 1
 				}
 			}
 		}
 	}
+	// Output: 1
 }
 
 func ExampleMemMonitor_Dump() {
@@ -104,8 +108,8 @@ func ExampleMemMonitor_TagIP() {
 		RegisterIP("1.1.1.1", "windows", nil).
 		Payload(c); err == nil {
 		fmt.Println(c.TagIP("windows"))
-		// Output: [1.1.1.1]
 	}
+	// Output: [1.1.1.1]
 }
 
 func ExampleMemMonitor_GroupIP() {
@@ -115,8 +119,8 @@ func ExampleMemMonitor_GroupIP() {
 		GroupUser("foo@test.local", "admin", nil).
 		Payload(c); err == nil {
 		fmt.Println(c.GroupIP("admin"))
-		// Output: [1.1.1.1]
 	}
+	// Output: [1.1.1.1]
 }
 
 func ExampleMemMonitor_UserIP() {
@@ -125,6 +129,6 @@ func ExampleMemMonitor_UserIP() {
 		LoginUser("foo@test.local", "1.1.1.1", nil).
 		Payload(c); err == nil {
 		fmt.Println(c.UserIP("foo@test.local"))
-		// Output: [1.1.1.1]
 	}
+	// Output: [1.1.1.1]
 }
