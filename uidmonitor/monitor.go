@@ -165,6 +165,7 @@ type MemMonitor struct {
 	userMap   *db
 	userGroup *db
 	ipTag     *db
+	lock      *sync.Mutex
 }
 
 // NewMemMonitor returns a ready-to-consume MemMonitor
@@ -178,6 +179,7 @@ func NewMemMonitor() (m *MemMonitor) {
 		userMap:   newDb(),
 		userGroup: newDb(),
 		ipTag:     newDb(),
+		lock:      &sync.Mutex{},
 	}
 	return
 }
@@ -234,6 +236,8 @@ func (m *MemMonitor) CleanUp(t time.Time) {
 
 // Dump is a convenience method that dumps the memory database for troubleshooting purposes
 func (m *MemMonitor) Dump() (out string) {
+	m.lock.Lock()
+	defer m.lock.Unlock()
 	j := &struct {
 		UserIp    index
 		GroupUser index
