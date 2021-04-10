@@ -190,7 +190,12 @@ func (m *MemMonitor) Log(op uid.Operation, subject, value string, tout *uint) {
 	if tout == nil {
 		valid = valid.Add(m.maxtout)
 	} else {
-		valid = valid.Add(time.Minute * time.Duration(*tout))
+		switch op {
+		case uid.Login, uid.Logout:
+			valid = valid.Add(time.Minute * time.Duration(*tout))
+		case uid.Register, uid.Unregister, uid.Group, uid.Ungroup:
+			valid = valid.Add(time.Second * time.Duration(*tout))
+		}
 	}
 	switch op {
 	case uid.Login:

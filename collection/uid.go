@@ -43,22 +43,22 @@ type UIDMsgPldLogEntry struct {
 
 Example User-ID DUG payload
 
-	<uid-message>
-		<type>update</type>
-		<payload>
-			<login>
-				<entry name="armis-1.1.1.1" ip="1.1.1.1" timeout="60">
-				</entry>
-			</login>
-			<register-user>
-				<entry user="armis-1.1.1.1">
-				<tag>
-					<member>tag30</member>
-				</tag>
-				</entry>
-			</register-user>
-		</payload>
-	</uid-message>
+<uid-message>
+	<type>update</type>
+	<payload>
+		<login>
+			<entry name="armis-1.1.1.1" ip="1.1.1.1" timeout="60">
+			</entry>
+		</login>
+		<register-user>
+			<entry user="armis-1.1.1.1">
+			<tag>
+				<member>tag30</member>
+			</tag>
+			</entry>
+		</register-user>
+	</payload>
+</uid-message>
 */
 type UIDMsgPldDUGRegUnreg struct {
 	Entry []UIDMsgPldDUGEntry `xml:"entry"`
@@ -74,18 +74,18 @@ type UIDMsgPldDUGEntry struct {
 
 Example User-ID DAG payload
 
-	<uid-message>
-	<type>update</type>
-	<payload>
-		<register>
-		<entry ip="10.10.10.10">
-			<tag>
-			<member timeout="10">tag10</member>
-			</tag>
-		</entry>
-		</register>
-	</payload>
-	</uid-message>
+<uid-message>
+<type>update</type>
+<payload>
+	<register>
+	<entry ip="10.10.10.10">
+		<tag>
+		<member timeout="10">tag10</member>
+		</tag>
+	</entry>
+	</register>
+</payload>
+</uid-message>
 */
 type UIDMsgPldDAGRegUnreg struct {
 	Entry []UIDMsgPldDAGEntry `xml:"entry"`
