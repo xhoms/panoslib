@@ -63,7 +63,7 @@ func TestMonitor(t *testing.T) {
 
 func ExampleNewMemMonitor() {
 	now := time.Now()
-	t1 := now.Add(10 * time.Minute)
+	t1 := now.Add(10 * time.Second)
 	var tout uint = 9
 	var err error
 	c := uidmonitor.NewMemMonitor()
@@ -78,8 +78,8 @@ func ExampleNewMemMonitor() {
 				Payload(c); err == nil {
 				if len(c.TagIP("good")) == 2 { // one entry lost due to explicit unregister
 					/*
-						purge at t1 (10 min after) will remove the entry
-						that expires at 9 minutes
+						purge at t1 (10 seconds after) will remove the entry
+						that expires at 9 seconds
 					*/
 					c.CleanUp(t1)
 					fmt.Println(len(c.TagIP("good")))
